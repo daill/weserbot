@@ -42,6 +42,7 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
     var heartbeat : Heartbeat? = null
     var activeConnection = false
     var lastHeartbeat : LocalTime = LocalTime.now()
+    var heartBeatJob : Job? = null
     val heartbeatOffset = 10
     var client = StandardWebSocketClient()
     var session : WebSocketSession? = null
@@ -62,6 +63,9 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
         super.afterConnectionClosed(session, status)
+        if (heartBeatJob != null && heartBeatJob!!.isActive) {
+            heartBeatJob!!.cancel(message = "connection already closed")
+        }
         LOG.error("session closed with status %d reason: %s".format(status.code, status.reason))
         publisher.publishbotSocketEvent("reconnect")
     }
@@ -78,7 +82,7 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
         if(op.op == 10) {
             lastHeartbeat = LocalTime.now()
             heartbeat = op.d?.let { Json{ ignoreUnknownKeys = true }.decodeFromString<Heartbeat>(it.toString()) }
-            CoroutineScope(Dispatchers.IO).launch {
+            heartBeatJob = CoroutineScope(Dispatchers.IO).launch {
                 scheduleHeartbeat(heartbeat!!.heartbeat_interval-heartbeatOffset)
             }
 
@@ -86,7 +90,7 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
         }
         if(op.op == 11) {
             lastHeartbeat = LocalTime.now()
-            CoroutineScope(Dispatchers.IO).launch {
+            heartBeatJob = CoroutineScope(Dispatchers.IO).launch {
                 scheduleHeartbeat(heartbeat!!.heartbeat_interval-heartbeatOffset)
             }
         }
