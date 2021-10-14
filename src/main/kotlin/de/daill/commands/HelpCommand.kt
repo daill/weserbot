@@ -15,9 +15,28 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.daill.protocol
+package de.daill.commands
 
-enum class InteractionType (val `type`: String) {
-    INTERACTION_CREATE("INTERACTION_CREATE"),
-    GUILD_CREATE("GUILD_CREATE")
+import de.daill.protocol.Interaction
+import de.daill.protocol.InteractionResponse
+import de.daill.protocol.InteractionResponseData
+import de.daill.protocol.Protocol
+import org.slf4j.LoggerFactory
+import kotlin.random.Random
+
+class HelpCommand(val protocol: Protocol, val interaction: Interaction) : Command {
+    val LOG = LoggerFactory.getLogger(this::class.java)
+
+    val text = "This is what the bot can do\n" +
+            " /coin to toss one\n" +
+            " /dice to roll one\n" +
+            " /valheim for server information\n"
+
+    override fun process() {
+        LOG.info("show help")
+
+        var data = InteractionResponseData(tts = null, content = text, description = null, embeds = null, url = null)
+        var response = InteractionResponse(type = 4, data = data)
+        protocol.sendInteractionResponse(interaction.id, interaction.token, response)
+    }
 }

@@ -18,8 +18,7 @@
 package de.daill.socket
 
 import de.daill.BotProps
-import de.daill.commands.CoinCommand
-import de.daill.commands.DiceCommand
+import de.daill.commands.*
 import de.daill.protocol.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.SerializationException
@@ -35,31 +34,36 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.net.URI
 import java.time.Duration
 import java.time.LocalTime
+import kotlin.collections.ArrayList
 
-class BotSocket(val protocol: Protocol, val props: BotProps) : TextWebSocketHandler() {
+class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotSocketEventPublisher) : TextWebSocketHandler() {
     val LOG = LoggerFactory.getLogger(BotSocket::class.java)
     var sequenceNumber: Int? = null
     var heartbeat : Heartbeat? = null
     var activeConnection = false
     var lastHeartbeat : LocalTime = LocalTime.now()
-    val heartbeatOffset = 1000
+    val heartbeatOffset = 10
     var client = StandardWebSocketClient()
     var session : WebSocketSession? = null
     var gatewayInfo : Gateway? = null
+    var guilds: ArrayList<Guild> = ArrayList()
 
     init {
         gatewayInfo = Json{ ignoreUnknownKeys = true }.decodeFromString<Gateway>(protocol.getGetGateway())
+        //gatewayInfo = Json{ ignoreUnknownKeys = true }.decodeFromString<Gateway>("{\"url\": \"wss://gateway.discord.gg\", \"shards\": 1, \"session_start_limit\": {\"total\": 1000, \"remaining\": 993, \"reset_after\": 77363335, \"max_concurrency\": 1}}")
         LOG.info(gatewayInfo?.url + "/?v=" + props.gateway.get("version") + "&encoding=" + props.gateway.get("encoding"))
         LOG.info("create socket")
     }
 
     fun initSocket() {
+        LOG.info("init socket")
         session = client.doHandshake(this, WebSocketHttpHeaders(), URI.create(gatewayInfo?.url + "/?v=" + props.gateway.get("version") + "&encoding=" + props.gateway.get("encoding"))).get()
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
         super.afterConnectionClosed(session, status)
         LOG.error("session closed with status %d reason: %s".format(status.code, status.reason))
+        publisher.publishbotSocketEvent("reconnect")
     }
 
     override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
@@ -92,19 +96,35 @@ class BotSocket(val protocol: Protocol, val props: BotProps) : TextWebSocketHand
                 InteractionType.INTERACTION_CREATE.type -> {
                     handleInteraction(op.d)
                 }
+                InteractionType.GUILD_CREATE.type -> {
+                    handleGuildCreate(op.d)
+                }
 
             }
         }
 
     }
 
+    private fun handleGuildCreate(payload: JsonElement) {
+        try {
+            val guild = Json{ ignoreUnknownKeys = true }.decodeFromJsonElement<Guild>(payload)
+            LOG.info(guild.toString())
+            guilds.add(guild)
+        } catch (e: SerializationException){
+            LOG.error(e.localizedMessage)
+        }
+    }
+
     private fun handleInteraction(payload: JsonElement) {
         try {
-            val interaction = Json.decodeFromJsonElement<Interaction>(payload)
+            val interaction = Json{ ignoreUnknownKeys = true }.decodeFromJsonElement<Interaction>(payload)
             LOG.info(interaction.toString())
             when(interaction.data?.name) {
                 "dice" -> { DiceCommand(protocol, interaction).process() }
                 "coin" -> { CoinCommand(protocol, interaction).process() }
+                "help" -> { HelpCommand(protocol, interaction).process() }
+                "cite" -> { CiteCommand(protocol, interaction).process() }
+                "valheim" -> { ValheimCommand(protocol, interaction).process() }
             }
         } catch (e: SerializationException){
             LOG.error(e.localizedMessage)

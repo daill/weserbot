@@ -23,6 +23,87 @@ POST https://discordapp.com/api/applications/{app_id}/commands
 }
 
 {
+    "name": "valheim",
+    "description": "Current valheim server data"
+}
+
+
+{
+    "name": "help",
+    "description": "Just a small help output"
+}
+
+{
+    "name": "addcite",
+    "description": "Roll a dice to have a random number",
+    "options": [
+    {
+        "name": "sides",
+        "description": "The sides of the dice",
+        "type": 3,
+        "required": "True",
+        "choices": [
+            {
+                "name": "Stromberg",
+                "value": "Stromberg"
+            },
+            {
+                "name": "Berthold Heisterkamp",
+                "value": "berthold-heisterkamp"
+            },
+        ]
+    }
+]
+}
+
+{
+    "name": "getcite",
+    "description": "Chose a character and get you random cite",
+    "options": [
+    {
+        "name": "character",
+        "description": "Character",
+        "type": 3,
+        "required": "True",
+        "choices": [
+            {
+                "name": "Stromberg",
+                "value": "Stromberg"
+            },
+            {
+                "name": "Berthold Heisterkamp",
+                "value": "berthold-heisterkamp"
+            },
+        ]
+    }
+]
+}
+
+
+{
+    "name": "getcite",
+    "description": "Roll a dice to have a random number",
+    "options": [
+    {
+        "name": "sides",
+        "description": "The sides of the dice",
+        "type": 3,
+        "required": "True",
+        "choices": [
+            {
+                "name": "Stromberg",
+                "value": "Stromberg"
+            },
+            {
+                "name": "Berthold Heisterkamp",
+                "value": "berthold-heisterkamp"
+            },
+        ]
+    }
+]
+}
+
+{
     "name": "dice",
     "description": "Roll a dice to have a random number",
     "options": [

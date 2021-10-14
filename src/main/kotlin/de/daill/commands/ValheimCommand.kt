@@ -15,9 +15,30 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.daill.protocol
+package de.daill.commands
 
-enum class InteractionType (val `type`: String) {
-    INTERACTION_CREATE("INTERACTION_CREATE"),
-    GUILD_CREATE("GUILD_CREATE")
+import de.daill.protocol.Interaction
+import de.daill.protocol.InteractionResponse
+import de.daill.protocol.InteractionResponseData
+import de.daill.protocol.Protocol
+import org.slf4j.LoggerFactory
+import kotlin.random.Random
+
+class ValheimCommand(val protocol: Protocol, val interaction: Interaction) : Command {
+    val LOG = LoggerFactory.getLogger(this::class.java)
+
+    val text = "Server1 (old map):\n" +
+                "IP 151.80.40.93:2456\n" +
+                "PW weser_base\n" +
+                "Server2 (new map):\n" +
+                "IP 151.80.40.93:2460\n" +
+                "PW weser_base\n";
+
+    override fun process() {
+        LOG.info("show valheim data")
+
+        var data = InteractionResponseData(tts = null, content = text, description = null, embeds = null, url = null)
+        var response = InteractionResponse(type = 4, data = data)
+        protocol.sendInteractionResponse(interaction.id, interaction.token, response)
+    }
 }

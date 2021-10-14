@@ -15,9 +15,18 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.daill.protocol
+package de.daill.socket;
 
-enum class InteractionType (val `type`: String) {
-    INTERACTION_CREATE("INTERACTION_CREATE"),
-    GUILD_CREATE("GUILD_CREATE")
+import org.springframework.context.ApplicationEvent;
+
+public class BotSocketEvent extends ApplicationEvent {
+    private String message;
+
+    public BotSocketEvent(Object source, String message) {
+        super(source);
+        this.message = message;
+    }
+    public String getMessage() {
+        return message;
+    }
 }

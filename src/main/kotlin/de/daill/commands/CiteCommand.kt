@@ -15,9 +15,16 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.daill.protocol
+package de.daill.commands
 
-enum class InteractionType (val `type`: String) {
-    INTERACTION_CREATE("INTERACTION_CREATE"),
-    GUILD_CREATE("GUILD_CREATE")
+import de.daill.protocol.Interaction
+import de.daill.protocol.Protocol
+import org.slf4j.LoggerFactory
+
+class CiteCommand(val protocol: Protocol, val interaction: Interaction) : Command {
+    val LOG = LoggerFactory.getLogger(this::class.java)
+
+    override fun process() {
+        TODO("Not yet implemented")
+    }
 }

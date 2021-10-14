@@ -15,9 +15,21 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.daill.protocol
+package de.daill.socket;
 
-enum class InteractionType (val `type`: String) {
-    INTERACTION_CREATE("INTERACTION_CREATE"),
-    GUILD_CREATE("GUILD_CREATE")
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
+
+@Component
+public class BotSocketEventPublisher{
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    public void publishbotSocketEvent(final String message) {
+        System.out.println("Publishing custom event. ");
+        BotSocketEvent customSpringEvent = new BotSocketEvent(this, message);
+        applicationEventPublisher.publishEvent(customSpringEvent);
+    }
 }
