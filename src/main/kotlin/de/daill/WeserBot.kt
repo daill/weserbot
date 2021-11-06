@@ -49,7 +49,8 @@ class WeserBot: ApplicationRunner, ApplicationListener<BotSocketEvent> {
 
     override fun onApplicationEvent(event: BotSocketEvent) {
         LOG.debug(event.message)
-        Thread.sleep(2000)
+        socket = null
+        Thread.sleep(1000)
         socket = BotSocket(props = props, protocol = protocol!!, publisher = publisher)
         socket!!.initSocket()
     }

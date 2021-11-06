@@ -47,6 +47,7 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
     var client = StandardWebSocketClient()
     var session : WebSocketSession? = null
     var gatewayInfo : Gateway? = null
+    var closedConnection = false
     var guilds: ArrayList<Guild> = ArrayList()
 
     init {
@@ -63,9 +64,8 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
         super.afterConnectionClosed(session, status)
-        if (heartBeatJob != null && heartBeatJob!!.isActive) {
-            heartBeatJob!!.cancel(message = "connection already closed")
-        }
+        closedConnection = true
+        heartBeatJob?.cancel()
         LOG.error("session closed with status %d reason: %s".format(status.code, status.reason))
         publisher.publishbotSocketEvent("reconnect")
     }
@@ -174,6 +174,11 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
     private suspend fun scheduleHeartbeat(heartbeatInterval: Int) {
         LOG.info("heartbeat scheduled in %d".format(heartbeatInterval))
         delay(heartbeatInterval.toLong())
+
+        if (closedConnection){
+            return
+        }
+
         activeConnection = false
         var msg = TextMessage(
             Json.encodeToString(HeartbeatResponse(1, null, sequenceNumber))
