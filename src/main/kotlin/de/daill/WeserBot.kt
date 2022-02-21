@@ -27,6 +27,7 @@ import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.ApplicationListener
+import java.util.*
 
 
 @SpringBootApplication
@@ -48,11 +49,14 @@ class WeserBot: ApplicationRunner, ApplicationListener<BotSocketEvent> {
     }
 
     override fun onApplicationEvent(event: BotSocketEvent) {
-        LOG.debug(event.message)
+        LOG.info(event.message)
         socket = null
-        Thread.sleep(1000)
-        socket = BotSocket(props = props, protocol = protocol!!, publisher = publisher)
-        socket!!.initSocket()
+        Timer().schedule(object: TimerTask(){
+            override fun run() {
+                socket = BotSocket(props = props, protocol = protocol!!, publisher = publisher)
+                socket!!.initSocket()
+            }
+        }, 1000)
     }
 
 

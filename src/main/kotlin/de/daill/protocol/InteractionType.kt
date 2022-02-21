@@ -19,5 +19,6 @@ package de.daill.protocol
 
 enum class InteractionType (val `type`: String) {
     INTERACTION_CREATE("INTERACTION_CREATE"),
-    GUILD_CREATE("GUILD_CREATE")
+    GUILD_CREATE("GUILD_CREATE"),
+    READY("READY")
 }

@@ -17,19 +17,21 @@
 
 package de.daill.socket;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BotSocketEventPublisher{
+class BotSocketEventPublisher{
+    val LOG = LoggerFactory.getLogger(BotSocketEventPublisher::class.java)
 
     @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    lateinit var applicationEventPublisher: ApplicationEventPublisher
 
-    public void publishbotSocketEvent(final String message) {
-        System.out.println("Publishing custom event. ");
-        BotSocketEvent customSpringEvent = new BotSocketEvent(this, message);
+    fun publishbotSocketEvent(message: String) {
+        LOG.info("publishing bot socket event")
+        val customSpringEvent = BotSocketEvent(this as Object, message);
         applicationEventPublisher.publishEvent(customSpringEvent);
     }
 }

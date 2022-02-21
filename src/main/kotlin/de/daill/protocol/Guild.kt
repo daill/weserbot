@@ -19,7 +19,6 @@ package de.daill.protocol
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.io.Serial
 
 @Serializable
 enum class VideoQuality(val quality: String) {

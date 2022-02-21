@@ -30,7 +30,8 @@ class HelpCommand(val protocol: Protocol, val interaction: Interaction) : Comman
     val text = "This is what the bot can do\n" +
             " /coin to toss one\n" +
             " /dice to roll one\n" +
-            " /valheim for server information\n"
+            " /valheim for server information\n" +
+            " /stats for server information\n"
 
     override fun process() {
         LOG.info("show help")

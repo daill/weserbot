@@ -27,10 +27,55 @@ POST https://discordapp.com/api/applications/{app_id}/commands
     "description": "Current valheim server data"
 }
 
-
 {
     "name": "help",
     "description": "Just a small help output"
+}
+
+
+{
+    "name": "stats",
+    "description": "Get stats for specific user",
+    "options": [
+    {
+        "name": "nick",
+        "description": "The nick to get",
+        "type": 3,
+        "required": true
+    },
+    {
+        "name": "game",
+        "description": "The nick to get",
+        "type": 3,
+        "required": true,
+        "choices": [
+            {
+                "name": "COD Warzone",
+                "value": "warzone"
+            },
+            {
+                "name": "COD Cold War",
+                "value": "cold-war"
+            },
+            {
+                "name": "COD Vanguard",
+                "value": "vanguard"
+            },
+            {
+                "name": "Battlefield V",
+                "value": "bfv"
+            },
+            {
+                "name": "Battlefield 1",
+                "value": "bf1"
+            },
+            {
+                "name": "Battlefield 2042",
+                "value": "bf2042"
+            }
+        ]
+    },
+    ]
 }
 
 {
@@ -63,30 +108,6 @@ POST https://discordapp.com/api/applications/{app_id}/commands
     {
         "name": "character",
         "description": "Character",
-        "type": 3,
-        "required": "True",
-        "choices": [
-            {
-                "name": "Stromberg",
-                "value": "Stromberg"
-            },
-            {
-                "name": "Berthold Heisterkamp",
-                "value": "berthold-heisterkamp"
-            },
-        ]
-    }
-]
-}
-
-
-{
-    "name": "getcite",
-    "description": "Roll a dice to have a random number",
-    "options": [
-    {
-        "name": "sides",
-        "description": "The sides of the dice",
         "type": 3,
         "required": "True",
         "choices": [

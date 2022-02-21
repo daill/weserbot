@@ -19,14 +19,4 @@ package de.daill.socket;
 
 import org.springframework.context.ApplicationEvent;
 
-public class BotSocketEvent extends ApplicationEvent {
-    private String message;
-
-    public BotSocketEvent(Object source, String message) {
-        super(source);
-        this.message = message;
-    }
-    public String getMessage() {
-        return message;
-    }
-}
+class BotSocketEvent(source: Object, var message : String) : ApplicationEvent(source)

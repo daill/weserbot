@@ -43,11 +43,13 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
     var activeConnection = false
     var lastHeartbeat : LocalTime = LocalTime.now()
     var heartBeatJob : Job? = null
+    var readyWaitJob : Job? = null
     val heartbeatOffset = 10
     var client = StandardWebSocketClient()
     var session : WebSocketSession? = null
     var gatewayInfo : Gateway? = null
     var closedConnection = false
+    var ready = false
     var guilds: ArrayList<Guild> = ArrayList()
 
     init {
@@ -66,6 +68,7 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
         super.afterConnectionClosed(session, status)
         closedConnection = true
         heartBeatJob?.cancel()
+        readyWaitJob?.cancel()
         LOG.error("session closed with status %d reason: %s".format(status.code, status.reason))
         publisher.publishbotSocketEvent("reconnect")
     }
@@ -82,9 +85,6 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
         if(op.op == 10) {
             lastHeartbeat = LocalTime.now()
             heartbeat = op.d?.let { Json{ ignoreUnknownKeys = true }.decodeFromString<Heartbeat>(it.toString()) }
-            heartBeatJob = CoroutineScope(Dispatchers.IO).launch {
-                scheduleHeartbeat(heartbeat!!.heartbeat_interval-heartbeatOffset)
-            }
 
             identify()
         }
@@ -103,7 +103,12 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
                 InteractionType.GUILD_CREATE.type -> {
                     handleGuildCreate(op.d)
                 }
-
+                InteractionType.READY.type -> {
+                    ready = true
+                    heartBeatJob = CoroutineScope(Dispatchers.IO).launch {
+                        scheduleHeartbeat(heartbeat!!.heartbeat_interval-heartbeatOffset)
+                    }
+                }
             }
         }
 
@@ -126,8 +131,8 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
             when(interaction.data?.name) {
                 "dice" -> { DiceCommand(protocol, interaction).process() }
                 "coin" -> { CoinCommand(protocol, interaction).process() }
-                "help" -> { HelpCommand(protocol, interaction).process() }
                 "cite" -> { CiteCommand(protocol, interaction).process() }
+                "stats" -> { StatsCommand(protocol, interaction).process() }
                 "valheim" -> { ValheimCommand(protocol, interaction).process() }
             }
         } catch (e: SerializationException){
@@ -137,13 +142,11 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
     }
 
     private fun handlingSequence(s: Int) {
-        if (s != null) {
-            if (sequenceNumber == null) {
+        if (sequenceNumber == null) {
+            sequenceNumber = s
+        } else {
+            if (s.compareTo(sequenceNumber!!) > 0) {
                 sequenceNumber = s
-            } else {
-                if (s.compareTo(sequenceNumber!!) > 0) {
-                    sequenceNumber = s
-                }
             }
         }
     }
@@ -168,7 +171,22 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
         val msg = Json.encodeToString(identify)
         LOG.info(msg)
         sendMessage(TextMessage(msg))
-        LOG.info("identify sent")
+        LOG.info("identification sent")
+        LOG.info("setting up wait timer for ack response")
+
+        readyWaitJob = CoroutineScope(Dispatchers.IO).launch {
+            scheduleWaitForRetry()
+        }
+
+    }
+
+    private suspend fun scheduleWaitForRetry() {
+        delay(2000)
+        if (!ready) {
+            // if not ready reinit
+            this.session!!.close()
+            LOG.info("ready not sent, restart")
+        }
     }
 
     private suspend fun scheduleHeartbeat(heartbeatInterval: Int) {

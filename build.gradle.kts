@@ -40,6 +40,7 @@ version = "0.2.1"
 
 repositories {
     mavenCentral()
+    maven { setUrl("https://jitpack.io") }
 }
 
 sourceSets {
@@ -56,6 +57,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket:2.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.8.+")
+    implementation("com.github.KwabenBerko:News-API-Java:1.0.0")
     testImplementation(platform("org.junit:junit-bom:5.7.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
