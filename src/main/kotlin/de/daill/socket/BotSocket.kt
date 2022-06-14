@@ -88,6 +88,11 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
 
             identify()
         }
+        if(op.op == 7) {
+            LOG.info("restart connection gracefully")
+            // don't wait till the connection is remotely closed
+            this.session!!.close()
+        }
         if(op.op == 11) {
             lastHeartbeat = LocalTime.now()
             heartBeatJob = CoroutineScope(Dispatchers.IO).launch {
@@ -133,7 +138,7 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
                 "coin" -> { CoinCommand(protocol, interaction).process() }
                 "cite" -> { CiteCommand(protocol, interaction).process() }
                 "stats" -> { StatsCommand(protocol, interaction).process() }
-                "valheim" -> { ValheimCommand(protocol, interaction).process() }
+                "motd" -> { MotdCommand(protocol, interaction).process() }
             }
         } catch (e: SerializationException){
             LOG.error(e.localizedMessage)
