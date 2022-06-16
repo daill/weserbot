@@ -138,7 +138,7 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
                 "coin" -> { CoinCommand(protocol, interaction).process() }
                 "cite" -> { CiteCommand(protocol, interaction).process() }
                 "stats" -> { StatsCommand(protocol, interaction).process() }
-                "motd" -> { MotdCommand(protocol, interaction).process() }
+                "infos" -> { InfosCommand(protocol, interaction).process() }
             }
         } catch (e: SerializationException){
             LOG.error(e.localizedMessage)

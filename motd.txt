@@ -1,4 +1,0 @@
-This is what the bot can do
-/coin to toss one
-/dice to roll one
-/stats for server information

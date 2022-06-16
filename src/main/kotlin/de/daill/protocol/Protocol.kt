@@ -72,7 +72,7 @@ class Protocol(private var props: BotProps) {
         )
 
         if(response.statusCode != HttpStatus.OK) {
-            LOG.info(response.getBody())
+            LOG.info("response:", response.getBody())
         }
     }
 

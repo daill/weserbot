@@ -1,3 +1,4 @@
 FROM openjdk:17
-ADD ./build/libs/WeserBot-0.2.1.jar WeserBot.jar
+COPY ./build/libs/WeserBot-0.2.3.jar WeserBot.jar
+COPY /data /data
 ENTRYPOINT ["java", "-jar", "WeserBot.jar"]

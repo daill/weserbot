@@ -28,6 +28,11 @@ POST https://discordapp.com/api/applications/{app_id}/commands
 }
 
 {
+    "name": "motd",
+    "description": "Display the current motd"
+}
+
+{
     "name": "help",
     "description": "Just a small help output"
 }

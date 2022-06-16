@@ -23,15 +23,26 @@ import de.daill.protocol.InteractionResponseData
 import de.daill.protocol.Protocol
 import org.slf4j.LoggerFactory
 import java.io.File
-import kotlin.random.Random
 
-class MotdCommand(val protocol: Protocol, val interaction: Interaction) : Command {
+class InfosCommand(val protocol: Protocol, val interaction: Interaction) : Command {
     val LOG = LoggerFactory.getLogger(this::class.java)
 
-    val text = File("motd.txt").readText(Charsets.UTF_8)
+    val path = "/data/infos.txt"
 
     override fun process() {
-        LOG.info("show motd")
+        LOG.info("show infos")
+        var text = "keine Informationen vorhanden"
+
+        var file = File(path)
+        with(file) {
+            if (file.isFile) {
+                text = file.readText(Charsets.UTF_8)
+            }
+        }
+
+        if (text.isNullOrEmpty()) {
+            text = "keine Informationen vorhanden"
+        }
 
         var data = InteractionResponseData(tts = null, content = text, description = null, embeds = null, url = null)
         var response = InteractionResponse(type = 4, data = data)

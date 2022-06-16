@@ -17,7 +17,7 @@
 
 plugins {
     val springBootVersion = "2.5.0"
-    val kotlinVersion = "1.5.10"
+    val kotlinVersion = "1.7.0"
     val dependencyManagement = "1.0.11.RELEASE"
 
 
@@ -36,7 +36,7 @@ plugins {
 }
 
 group = "de.daill"
-version = "0.2.1"
+version = "0.2.3"
 
 repositories {
     mavenCentral()
