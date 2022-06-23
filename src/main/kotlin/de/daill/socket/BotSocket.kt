@@ -30,13 +30,15 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import org.slf4j.LoggerFactory
 import org.springframework.web.socket.*
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
+import org.springframework.web.socket.handler.AbstractWebSocketHandler
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.net.URI
 import java.time.Duration
 import java.time.LocalTime
+import javax.websocket.ContainerProvider
 import kotlin.collections.ArrayList
 
-class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotSocketEventPublisher) : TextWebSocketHandler() {
+class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotSocketEventPublisher) : AbstractWebSocketHandler() {
     val LOG = LoggerFactory.getLogger(BotSocket::class.java)
     var sequenceNumber: Int? = null
     var heartbeat : Heartbeat? = null
@@ -45,7 +47,7 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
     var heartBeatJob : Job? = null
     var readyWaitJob : Job? = null
     val heartbeatOffset = 10
-    var client = StandardWebSocketClient()
+    var client: StandardWebSocketClient? = null
     var session : WebSocketSession? = null
     var gatewayInfo : Gateway? = null
     var closedConnection = false
@@ -61,7 +63,17 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
 
     fun initSocket() {
         LOG.info("init socket")
-        session = client.doHandshake(this, WebSocketHttpHeaders(), URI.create(gatewayInfo?.url + "/?v=" + props.gateway.get("version") + "&encoding=" + props.gateway.get("encoding"))).get()
+        // var container = ContainerProvider.getWebSocketContainer()
+        // container.defaultMaxBinaryMessageBufferSize = 3 * 1024 * 1024;
+        // container.defaultMaxTextMessageBufferSize = 3 * 1024 * 1024;
+        client = StandardWebSocketClient()
+        session = client?.doHandshake(this, WebSocketHttpHeaders(), URI.create(gatewayInfo?.url + "/?v=" + props.gateway.get("version") + "&encoding=" + props.gateway.get("encoding")))?.get()
+        session?.textMessageSizeLimit = 3 * 1024 * 1024
+    }
+
+    override fun handleTransportError(session: WebSocketSession, exception: Throwable) {
+        super.handleTransportError(session, exception)
+        LOG.error("transport error", exception)
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
