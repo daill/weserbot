@@ -27,12 +27,14 @@ import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.ApplicationListener
+import java.time.Instant
 import java.util.*
 
 
 @SpringBootApplication
 class WeserBot: ApplicationRunner, ApplicationListener<BotSocketEvent> {
     val LOG = LoggerFactory.getLogger(WeserBot::class.java)
+    var lastReconnect = Instant.now().epochSecond
 
     @Autowired
     lateinit var props: BotProps
@@ -51,13 +53,20 @@ class WeserBot: ApplicationRunner, ApplicationListener<BotSocketEvent> {
     override fun onApplicationEvent(event: BotSocketEvent) {
         LOG.info(event.message)
         socket = null
-        Timer().schedule(object: TimerTask(){
+        var wait : Long = 1000
+
+        if ((Instant.now().epochSecond-lastReconnect) < 5000) {
+            wait = 20000
+        }
+
+        Timer().schedule(object : TimerTask() {
             override fun run() {
                 socket = BotSocket(props = props, protocol = protocol!!, publisher = publisher)
                 socket!!.initSocket()
             }
-        }, 1000)
+        }, wait)
     }
 
 
 }
+

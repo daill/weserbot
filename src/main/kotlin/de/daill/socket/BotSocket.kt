@@ -68,7 +68,7 @@ class BotSocket(val protocol: Protocol, val props: BotProps, val publisher: BotS
         // container.defaultMaxTextMessageBufferSize = 3 * 1024 * 1024;
         client = StandardWebSocketClient()
         session = client?.doHandshake(this, WebSocketHttpHeaders(), URI.create(gatewayInfo?.url + "/?v=" + props.gateway.get("version") + "&encoding=" + props.gateway.get("encoding")))?.get()
-        session?.textMessageSizeLimit = 3 * 1024 * 1024
+        session?.textMessageSizeLimit = 10 * 1024 * 1024
     }
 
     override fun handleTransportError(session: WebSocketSession, exception: Throwable) {
