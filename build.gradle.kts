@@ -36,7 +36,7 @@ plugins {
 }
 
 group = "de.daill"
-version = "0.2.3"
+version = "0.2.4"
 
 repositories {
     mavenCentral()
@@ -58,7 +58,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.8.+")
-    implementation("com.github.KwabenBerko:News-API-Java:1.0.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     testImplementation(platform("org.junit:junit-bom:5.7.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
